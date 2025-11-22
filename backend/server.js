@@ -80,6 +80,12 @@ app.post('/api/upload-one', (req, res) => {
     meta.files.push(`Q${questionIndex}.webm`);
     meta[`Q${questionIndex}UploadedAt`] = moment().tz('Asia/Bangkok').toISOString();
     fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
+// ===== NHẬN VÀ LƯU TRANSCRIPT.TXT =====
+    if (req.body.transcript) {
+      const transcriptText = `Q${questionIndex}: ${req.body.transcript}\n\n`;
+      const transcriptPath = path.join(folderPath, 'transcript.txt');
+      fs.appendFileSync(transcriptPath, transcriptText);
+    }
 
     res.json({ ok: true, savedAs: `Q${questionIndex}.webm` });
   });

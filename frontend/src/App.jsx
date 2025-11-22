@@ -14,28 +14,60 @@ function App() {
   const recorderRef = useRef(null);
   const chunks = useRef([]);
 
+  const [transcript, setTranscript] = useState('');
+let recognition;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = 'en-US';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = (e) => {
+    const text = Array.from(e.results).map(r => r[0].transcript).join('');
+    setTranscript(text);
+  };
+}
+
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     videoRef.current.srcObject = stream;
     recorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm' });
     recorderRef.current.ondataavailable = e => chunks.current.push(e.data);
     recorderRef.current.start();
+    if (recognition) recognition.start();
     setStatus('🔴 Recording...');
   };
 
   const stopAndUpload = async () => {
-    recorderRef.current.stop();
-    recorderRef.current.onstop = async () => {
-      const blob = new Blob(chunks.current, { type: 'video/webm' });
-      const form = new FormData();
-      form.append('token', token);
-      form.append('folder', folder);
-      form.append('questionIndex', currentQ + 1);
-      form.append('video', blob, `Q${currentQ + 1}.webm`);
+  recorderRef.current.stop();
+  recorderRef.current.onstop = async () => {
+    const blob = new Blob(chunks.current, { type: 'video/webm' });
+    const form = new FormData();
+    form.append('token', token);
+    form.append('folder', folder);
+    form.append('questionIndex', currentQ + 1);
+    form.append('video', blob, `Q${currentQ + 1}.webm`);
+    if (recognition) {
+        recognition.stop();
+        // Đợi 1 giây để recognition trả kết quả cuối cùng
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        form.append('transcript', transcript || 'No speech detected');
+      }
 
-      setStatus('⏳ Uploading...');
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    const tryUpload = async () => {
+      attempts++;
+      setStatus(`⏳ Uploading... (lần ${attempts})`);
+
       try {
-        await axios.post('http://localhost:5000/api/upload-one', form);
+        await axios.post('http://localhost:5000/api/upload-one', form, {
+          onUploadProgress: (p) => {
+            setStatus(`⏳ Uploading ${Math.round(p.loaded / p.total * 100)}%`);
+          }
+        });
         setStatus('✅ Uploaded!');
         chunks.current = [];
         if (currentQ < questions.length - 1) {
@@ -46,10 +78,17 @@ function App() {
           setStep('done');
         }
       } catch (e) {
-        setStatus('❌ Upload failed - retry');
+        if (attempts < maxAttempts) {
+          setStatus(`❌ Lỗi, thử lại sau 3s... (${attempts}/${maxAttempts})`);
+          setTimeout(tryUpload, 3000);
+        } else {
+          setStatus('❌ Upload thất bại hoàn toàn');
+        }
       }
     };
+    tryUpload();
   };
+};
 
   const startInterview = async () => {
     const res = await axios.post('http://localhost:5000/api/verify-token', { token });

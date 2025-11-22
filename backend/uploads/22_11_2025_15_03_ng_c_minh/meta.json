@@ -1,0 +1,19 @@
+{
+  "userName": "Ngọc Minh",
+  "startedAt": "2025-11-22T08:03:02.869Z",
+  "timeZone": "Asia/Bangkok",
+  "files": [
+    "Q1.webm",
+    "Q2.webm",
+    "Q3.webm",
+    "Q4.webm",
+    "Q5.webm"
+  ],
+  "Q1UploadedAt": "2025-11-22T08:03:11.602Z",
+  "Q2UploadedAt": "2025-11-22T08:03:20.531Z",
+  "Q3UploadedAt": "2025-11-22T08:03:24.438Z",
+  "Q4UploadedAt": "2025-11-22T08:03:30.679Z",
+  "Q5UploadedAt": "2025-11-22T08:03:34.036Z",
+  "finishedAt": "2025-11-22T08:03:34.047Z",
+  "questionsCount": 5
+}
