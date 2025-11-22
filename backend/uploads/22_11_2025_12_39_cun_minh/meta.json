@@ -1,0 +1,19 @@
+{
+  "userName": "Cun Minh",
+  "startedAt": "2025-11-22T05:39:34.627Z",
+  "timeZone": "Asia/Bangkok",
+  "files": [
+    "Q1.webm",
+    "Q2.webm",
+    "Q3.webm",
+    "Q4.webm",
+    "Q5.webm"
+  ],
+  "Q1UploadedAt": "2025-11-22T05:39:44.817Z",
+  "Q2UploadedAt": "2025-11-22T05:39:51.121Z",
+  "Q3UploadedAt": "2025-11-22T05:39:56.926Z",
+  "Q4UploadedAt": "2025-11-22T05:40:01.656Z",
+  "Q5UploadedAt": "2025-11-22T05:40:03.984Z",
+  "finishedAt": "2025-11-22T05:40:03.993Z",
+  "questionsCount": 5
+}
